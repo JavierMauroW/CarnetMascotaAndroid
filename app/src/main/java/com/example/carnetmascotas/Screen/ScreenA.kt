@@ -1,6 +1,5 @@
 package com.example.carnetmascotas.Screen
 
-import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -8,17 +7,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun ScreenA(navController: NavController) {
-    var nombre by remember { mutableStateOf("") }
-    var raza by remember { mutableStateOf("") }
-    var tamano by remember { mutableStateOf("") }
-    var fotoUrl by remember { mutableStateOf("") }
+fun ScreenA(navController: NavController, carnetList: MutableList<Carnet>, editIndex: Int?) {
+    val carnetToEdit = editIndex?.let { carnetList.getOrNull(it) }
 
-    val camposCompletos = nombre.isNotBlank() && raza.isNotBlank() && tamano.isNotBlank() && fotoUrl.isNotBlank()
+    var nombre by remember { mutableStateOf(carnetToEdit?.nombre ?: "") }
+    var raza by remember { mutableStateOf(carnetToEdit?.raza ?: "") }
+    var tamano by remember { mutableStateOf(carnetToEdit?.tamano ?: "") }
+    var edad by remember { mutableStateOf(carnetToEdit?.edad ?: "") }
+    var fotoUrl by remember { mutableStateOf(carnetToEdit?.fotoUrl ?: "") }
+
+    val camposLlenos = nombre.isNotBlank() && raza.isNotBlank() && tamano.isNotBlank() && edad.isNotBlank() && fotoUrl.isNotBlank()
 
     Column(
         modifier = Modifier
@@ -28,9 +29,8 @@ fun ScreenA(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Registro de Mascota",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
+            text = if (editIndex != null) "Editar Mascota" else "Registro de Mascota",
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary
         )
 
@@ -41,38 +41,33 @@ fun ScreenA(navController: NavController) {
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .padding(24.dp),
+                modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") })
                 OutlinedTextField(value = raza, onValueChange = { raza = it }, label = { Text("Raza") })
                 OutlinedTextField(value = tamano, onValueChange = { tamano = it }, label = { Text("Tamaño") })
+                OutlinedTextField(value = edad, onValueChange = { edad = it }, label = { Text("Edad") })
                 OutlinedTextField(value = fotoUrl, onValueChange = { fotoUrl = it }, label = { Text("Foto URL") })
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
                     onClick = {
-                        val encodedNombre = Uri.encode(nombre)
-                        val encodedRaza = Uri.encode(raza)
-                        val encodedTamano = Uri.encode(tamano)
-                        val encodedUrl = Uri.encode(fotoUrl)
+                        val nuevoCarnet = Carnet(nombre, raza, tamano, edad, fotoUrl)
 
-                        navController.navigate("screenB/$encodedNombre/$encodedRaza/$encodedTamano/$encodedUrl")
+                        if (editIndex != null && editIndex >= 0 && editIndex < carnetList.size) {
+                            carnetList[editIndex] = nuevoCarnet
+                        } else {
+                            carnetList.add(nuevoCarnet)
+                        }
+
+                        navController.navigate("screenB") {
+                            popUpTo("screenA") { inclusive = true }
+                        }
                     },
-                    enabled = camposCompletos,
+                    enabled = camposLlenos,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Text("Registrar Mascota")
-                }
-
-                if (!camposCompletos) {
-                    Text(
-                        text = "Por favor, completa todos los campos",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    Text(if (editIndex != null) "Actualizar Mascota" else "Registrar Mascota")
                 }
             }
         }

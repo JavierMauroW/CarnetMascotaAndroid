@@ -1,33 +1,22 @@
 package com.example.carnetmascotas.Screen
 
-
-
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
 @Composable
-fun Navigation(navController: NavHostController) {
+fun Navigation(navController: NavHostController, carnetList: MutableList<Carnet>) {
     NavHost(navController = navController, startDestination = "screenA") {
-
         composable("screenA") {
-            ScreenA(navController)
+            ScreenA(navController, carnetList, null)
         }
-
-        composable("screenB/{nombre}/{raza}/{tamano}/{fotoUrl}") { backStackEntry ->
-            val nombre = backStackEntry.arguments?.getString("nombre") ?: ""
-            val raza = backStackEntry.arguments?.getString("raza") ?: ""
-            val tamano = backStackEntry.arguments?.getString("tamano") ?: ""
-            val fotoUrl = backStackEntry.arguments?.getString("fotoUrl") ?: ""
-
-            ScreenB(
-                nombre = nombre,
-                raza = raza,
-                tamano = tamano,
-                fotoUrl = fotoUrl,
-                navController = navController
-            )
+        composable("screenA/{index}") { backStackEntry ->
+            val index = backStackEntry.arguments?.getString("index")?.toIntOrNull()
+            ScreenA(navController, carnetList, index)
+        }
+        composable("screenB") {
+            ScreenB(carnetList = carnetList, navController = navController)
         }
     }
 }
