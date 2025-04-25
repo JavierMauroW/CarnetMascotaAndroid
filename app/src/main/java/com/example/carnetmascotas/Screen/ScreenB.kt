@@ -61,7 +61,7 @@ fun ScreenB(carnetList: MutableList<Carnet>, navController: NavController) {
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        Text("🐶 Nombre: ${carnet.nombre}", fontSize = 18.sp, fontWeight = gitgitFontWeight.SemiBold)
+                        Text("🐶 Nombre: ${carnet.nombre}", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                         Text("🐕 Raza: ${carnet.raza}", fontSize = 16.sp)
                         Text("📏 Tamaño: ${carnet.tamano}", fontSize = 16.sp)
                         Text("🎂 Edad: ${carnet.edad}", fontSize = 16.sp)
